@@ -167,6 +167,13 @@
     }
     ```
 
+### 技术栈
+
+- 前端：Vue3 + Element Plus
+- 后端：Python Django + Django REST Framework
+- 数据库：SQLite(测试) / MySQL（生产）
+
+
 
 
 
