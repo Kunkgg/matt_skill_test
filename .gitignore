@@ -1,1 +1,44 @@
+# Agent skills (symlink targets, not source)
 .agents/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Django
+*.sqlite3
+db.sqlite3
+backend/staticfiles/
+media/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+.pnpm-store/
+
+# Testing / lint caches
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

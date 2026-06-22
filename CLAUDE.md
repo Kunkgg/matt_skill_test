@@ -1,4 +1,7 @@
-使用中文和我交流
+##
+
+- 使用中文和我交流
+- 当前环境为 WSL(Windows Sub Linux)
 
 ## Agent skills
 

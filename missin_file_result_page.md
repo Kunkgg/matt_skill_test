@@ -52,6 +52,7 @@
     - summary_id: 汇总ID
     - file_name: 文件名称
     - status: 文件状态（missing/failed/remapped/shielded）
+    - sub_group: 子分组（根据文件路径划分，可为空/Null，表示该组件组无子分组结构）
     - first_detected_time: 首次发现时间
     - is_overdue: 是否逾期（0：否，1：是）
 
@@ -103,7 +104,6 @@
               "sub_groups": [
                 {
                   "sub_group_name": "子分组A",
-                  "passed_count": 500,
                   "missing_count": 5,
                   "failed_count": 2,
                   "overdue_missing_count": 1,
@@ -113,7 +113,6 @@
                 },
                 {
                   "sub_group_name": "子分组B",
-                  "passed_count": 500,
                   "missing_count": 5,
                   "failed_count": 3,
                   "overdue_missing_count": 1,
@@ -139,7 +138,6 @@
               "sub_groups": [
                 {
                   "sub_group_name": "子分组C",
-                  "passed_count": 100,
                   "missing_count": 250,
                   "failed_count": 210,
                   "overdue_missing_count": 1,
@@ -149,7 +147,6 @@
                 },
                 {
                   "sub_group_name": "子分组D",
-                  "passed_count": 100,
                   "missing_count": 250,
                   "failed_count": 211,
                   "overdue_missing_count": 1,
@@ -168,6 +165,8 @@
     ```
 
 ### 技术栈
+
+前后端分离
 
 - 前端：Vue3 + Element Plus
 - 后端：Python Django + Django REST Framework
