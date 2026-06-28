@@ -6,18 +6,17 @@
 
 在 `src/data/` 下放置内存示例数据与类型定义：
 
-- `types.ts`：`Task`、`Summary`、`MissingFile` 三个接口，字段严格对应需求。
-- `sample-data.ts`：构造一组真实感的示例数据
+- `types.js`：`Task`、`Summary`、`MissingFile` 三个接口，字段严格对应需求。
+- `sample-data.js`：构造一组真实感的示例数据
   - 覆盖多个 `search_version`（如 V100R001 / V100R002）、多个 `group_name`、`product`（4G/5G/IAB/EMRU）、`source_type`、`lan`、`data_type`。
   - 每个「配置组」（version/group/product/source_type/lan/data_type 相同）生成 8 个 `tool_type` 任务（codetyle/codemars/secbrella/aps-molint/cooddy/binexplorer/sai/secoptions）。
   - 部分任务无 Summary（无扫描结果），部分有缺失/失败/过期文件，部分干净。
   - 每个有缺失的 Summary 关联若干 `MissingFile`，带 `status`、`is_expired`、`ownership`（BSP/TRAN/APP/TEST/TOOLS）。
-- `selectors.ts`：纯函数——按 `is_active=1` 取每个任务最近一次 Summary、关联组装、按配置分组、计算总览与子分组汇总。
+- `selectors.js`：纯函数——按 `is_active=1` 取每个任务最近一次 Summary、关联组装、按配置分组、计算总览与子分组汇总。
 
-### 页面与路由
+### 页面
 
-- 看板为主页 `src/routes/index.tsx`（替换占位内容）。
-- 过滤条件用 URL search params（`validateSearch` + zod）持久化，刷新/分享保留状态。
+- 过滤条件用 URL search params，刷新/分享保留状态。
 
 #### 1. 过滤控制（顶部 sticky 工具栏）
 下拉过滤：search_version（默认最新）、group_name、product、source_type、lan、data_type、tool_type（默认全部）。
