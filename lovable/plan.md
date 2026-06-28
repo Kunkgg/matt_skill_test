@@ -52,10 +52,12 @@
 - 浅色中性背景，卡片白底细边框；状态用语义色：通过=绿、缺失=红、失败=琥珀、过期=橙、屏蔽/重映射=中性灰蓝。
 - 字体：标题 Outfit，正文 Figtree（通过 @fontsource 安装），等宽用于 file_path。
 - 计数用紧凑数字徽标，0 值弱化为灰色以突出非零问题。
-- 所有颜色走 `src/styles.css` 语义 token，不硬编码。
+- 所有颜色走 @lovable/styles.css 语义 token，不硬编码。
+- 效果截图参考 @lovable/screenshot_1.png 和 @screenshot_2.png
 
 ### 技术要点
 
-- 全部 shadcn 组件复用现有 ui 库（Select、Drawer、Table、Badge、Card、Switch）。
+- 全部 ElementPlus 组件复用现有 ui 库（Select、Drawer、Table、Badge、Card、Switch）。
 - 过滤、分组、汇总均为纯函数，便于日后替换为真实接口。
-- 文件清单：新增 `src/data/{types,sample-data,selectors}.ts`、`src/components/dashboard/*`（FilterBar、OverviewCards、ConfigGroupCard、FileDetailDrawer 等），改写 `src/routes/index.tsx` 与必要的 `styles.css` token。
+- 使用 VUE3 (组合式 API) + Javascript 实现
+- 对文件进行合理分拆
