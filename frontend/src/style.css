@@ -8,29 +8,28 @@
 @import '@fontsource-variable/jetbrains-mono';
 
 :root {
-  /* 语义状态色 (oklch from lovable design system) */
-  --color-ok: oklch(0.62 0.16 150);
-  --color-ok-foreground: oklch(0.985 0.003 247.858);
-  --color-missed: oklch(0.585 0.22 27);
-  --color-missed-foreground: oklch(0.985 0.003 247.858);
-  --color-failed: oklch(0.72 0.16 65);
-  --color-failed-foreground: oklch(0.2 0.04 70);
-  --color-expired: oklch(0.68 0.18 45);
-  --color-expired-foreground: oklch(0.2 0.04 45);
-  --color-neutralx: oklch(0.6 0.03 250);
-  --color-neutral: oklch(0.6 0.03 250);
-  --color-neutralx-foreground: oklch(0.985 0.003 247.858);
+  /* 语义状态色 — 映射到 Element Plus 色板 */
+  --color-ok: var(--el-color-success);
+  --color-ok-foreground: #ffffff;
+  --color-missed: var(--el-color-danger);
+  --color-missed-foreground: #ffffff;
+  --color-failed: var(--el-color-warning);
+  --color-failed-foreground: #ffffff;
+  --color-expired: var(--el-color-danger-dark-2);
+  --color-expired-foreground: #ffffff;
+  --color-neutral: var(--el-color-info);
+  --color-neutral-foreground: #ffffff;
 
-  /* 通用 UI 色 */
-  --color-background: oklch(0.985 0.004 247);
-  --color-foreground: oklch(0.129 0.042 264.695);
-  --color-card: oklch(1 0 0);
-  --color-card-foreground: oklch(0.129 0.042 264.695);
-  --color-border: oklch(0.929 0.013 255.508);
-  --color-muted: oklch(0.968 0.007 247.896);
-  --color-muted-foreground: oklch(0.554 0.046 257.417);
-  --color-primary: oklch(0.208 0.042 265.755);
-  --color-primary-foreground: oklch(0.984 0.003 247.858);
+  /* 通用 UI 色 — 映射到 Element Plus 基础变量 */
+  --color-background: var(--el-bg-color-page);
+  --color-foreground: var(--el-text-color-primary);
+  --color-card: var(--el-bg-color);
+  --color-card-foreground: var(--el-text-color-primary);
+  --color-border: var(--el-border-color-light);
+  --color-muted: var(--el-fill-color-light);
+  --color-muted-foreground: var(--el-text-color-secondary);
+  --color-primary: var(--el-color-primary);
+  --color-primary-foreground: #ffffff;
 
   /* 字体族 */
   --font-display: 'Outfit', ui-sans-serif, system-ui, sans-serif;
@@ -38,7 +37,7 @@
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 
   /* 圆角 */
-  --radius: 0.625rem;
+  --radius: var(--el-border-radius-base);
 }
 
 * {

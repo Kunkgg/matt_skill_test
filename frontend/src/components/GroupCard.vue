@@ -326,9 +326,9 @@ function formatDate(dateStr) {
   font-family: var(--font-display);
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-primary);
-  background: oklch(0.95 0.02 260);
-  border: 1px solid oklch(0.9 0.03 260);
+  color: var(--el-color-primary);
+  background: var(--el-color-primary-light-9);
+  border: 1px solid var(--el-color-primary-light-7);
   padding: 2px 8px;
   border-radius: 4px;
   letter-spacing: 0.2px;
@@ -354,7 +354,7 @@ function formatDate(dateStr) {
 }
 
 .group-card__table :deep(.el-table__row:hover > td) {
-  background: rgba(59, 130, 246, 0.03) !important;
+  background: var(--el-color-primary-light-9) !important;
 }
 
 .group-card__unscanned-cell {
@@ -392,7 +392,7 @@ function formatDate(dateStr) {
 }
 
 .group-card__report-link:hover {
-  color: #2563eb;
+  color: var(--el-color-primary-dark-2);
 }
 
 /* Count styles */
@@ -457,7 +457,7 @@ function formatDate(dateStr) {
 }
 
 :deep(.group-card__row--subgroup) td {
-  background: rgba(241, 245, 249, 0.5) !important;
+  background: var(--el-fill-color-lighter) !important;
   font-size: 12px;
 }
 </style>
