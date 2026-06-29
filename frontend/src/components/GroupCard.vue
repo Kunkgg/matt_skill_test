@@ -22,9 +22,12 @@
       <el-table-column label="扫描工具" prop="tool_name" min-width="160" fixed>
         <template #default="{ row }">
           <template v-if="row.isUnscanned">
-            <el-tag type="info" size="small" class="group-card__unscanned-tag">
-              未扫描
-            </el-tag>
+            <span class="group-card__unscanned-cell">
+              <span class="group-card__tool-name-muted">{{ row.tool_name }}</span>
+              <el-tag type="info" size="small" class="group-card__unscanned-tag">
+                未扫描
+              </el-tag>
+            </span>
           </template>
           <template v-else>
             <span :class="{ 'group-card__subgroup-name': row.rowType === 'sub_group' }">
@@ -289,6 +292,12 @@ function formatDate(dateStr) {
   background: var(--color-card);
   margin-bottom: 20px;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+
+.group-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .group-card__header {
@@ -297,7 +306,7 @@ function formatDate(dateStr) {
   gap: 8px 24px;
   padding: 16px 20px;
   border-bottom: 1px solid var(--color-border);
-  background: var(--color-muted);
+  background: var(--color-card);
 }
 
 .group-card__dim {
@@ -315,9 +324,14 @@ function formatDate(dateStr) {
 
 .group-card__dim-value {
   font-family: var(--font-display);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--color-card-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: oklch(0.95 0.02 260);
+  border: 1px solid oklch(0.9 0.03 260);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.2px;
 }
 
 .group-card__table {
@@ -327,7 +341,7 @@ function formatDate(dateStr) {
 }
 
 .group-card__table :deep(.el-table__header th) {
-  background: var(--color-muted) !important;
+  background: var(--color-card) !important;
   font-weight: 600;
   font-size: 12px;
   color: var(--color-muted-foreground);
@@ -343,8 +357,19 @@ function formatDate(dateStr) {
   background: rgba(59, 130, 246, 0.03) !important;
 }
 
+.group-card__unscanned-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.group-card__tool-name-muted {
+  font-size: 13px;
+  color: var(--color-muted-foreground);
+}
+
 .group-card__unscanned-tag {
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .group-card__subgroup-name {

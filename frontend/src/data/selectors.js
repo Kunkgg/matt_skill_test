@@ -82,6 +82,37 @@ function buildMissingFilesLookup() {
 }
 
 /**
+ * Compute which status categories a tool row belongs to.
+ * A tool can belong to multiple categories simultaneously.
+ *
+ * - 未扫描: no summary at all
+ * - 通过: has summary, no missing/failed
+ * - 缺失: has summary with missing_count > 0 or failed_count > 0
+ * - 超期: has summary with overdue_missing_count > 0 or overdue_failed_count > 0
+ *
+ * @param {import('./types.js').ToolRow} toolRow
+ * @returns {string[]}
+ */
+function getToolStatusCategories(toolRow) {
+  if (!toolRow.summary) return ['未扫描']
+
+  const s = toolRow.summary
+  const cats = []
+
+  if (s.missing_count > 0 || s.failed_count > 0) {
+    cats.push('缺失')
+  }
+  if (s.overdue_missing_count > 0 || s.overdue_failed_count > 0) {
+    cats.push('超期')
+  }
+  if (cats.length === 0) {
+    cats.push('通过')
+  }
+
+  return cats
+}
+
+/**
  * Get filtered and grouped data for the dashboard.
  *
  * @param {import('./types.js').Filters} filters
@@ -138,20 +169,17 @@ export function getFilteredGroups(filters) {
       })
     }
 
-    // 4. Apply show_issue_only / show_expired_only filters
+    // 4. Apply task_status filter
     let filteredTools = toolRows
 
-    if (filters.show_issue_only) {
-      filteredTools = filteredTools.filter((tr) => {
-        if (!tr.summary) return true // no scan = an issue
-        return tr.summary.missing_count > 0 || tr.summary.failed_count > 0
-      })
-    }
+    const statusSet = filters.task_status
+    const allStatuses = ['通过', '缺失', '超期', '未扫描']
+    const isAllSelected = !statusSet || statusSet.length === 0 || statusSet.length === allStatuses.length
 
-    if (filters.show_expired_only) {
+    if (!isAllSelected) {
       filteredTools = filteredTools.filter((tr) => {
-        if (!tr.summary) return false
-        return tr.summary.overdue_missing_count > 0 || tr.summary.overdue_failed_count > 0
+        const categories = getToolStatusCategories(tr)
+        return categories.some((cat) => statusSet.includes(cat))
       })
     }
 

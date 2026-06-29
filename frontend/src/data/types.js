@@ -87,8 +87,7 @@
  * @property {string} lan
  * @property {string} data_type
  * @property {string} tool_name
- * @property {boolean} show_issue_only
- * @property {boolean} show_expired_only
+ * @property {string[]} task_status
  */
 
 export {}

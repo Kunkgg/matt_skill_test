@@ -15,6 +15,8 @@
     <FilterToolbar
       v-model="filters"
       :filter-options="filterOptions"
+      @refresh="handleRefresh"
+      @navigate="handleNavigate"
     />
 
     <!-- Overview Cards -->
@@ -57,7 +59,9 @@ import FileDetailDrawer from './FileDetailDrawer.vue'
 
 // --- Filters (init from URL params) ---
 function parseUrlFilters() {
+  const allStatuses = ['通过', '缺失', '超期', '未扫描']
   const params = new URLSearchParams(window.location.search)
+  const statusParam = params.get('task_status')
   return {
     search_version: params.get('search_version') || '',
     group_name: params.get('group_name') || '',
@@ -66,8 +70,7 @@ function parseUrlFilters() {
     lan: params.get('lan') || '',
     data_type: params.get('data_type') || '',
     tool_name: params.get('tool_name') || '',
-    show_issue_only: params.get('show_issue_only') === 'true',
-    show_expired_only: params.get('show_expired_only') === 'true',
+    task_status: statusParam ? statusParam.split(',') : [...allStatuses],
   }
 }
 
@@ -84,9 +87,15 @@ const stats = computed(() => getOverviewStats(groups.value))
 watch(
   filters,
   (newFilters) => {
+    const allStatuses = ['通过', '缺失', '超期', '未扫描']
     const params = new URLSearchParams()
     for (const [key, value] of Object.entries(newFilters)) {
-      if (value !== '' && value !== false) {
+      if (key === 'task_status') {
+        // Only persist if not all selected (all-selected is the default)
+        if (Array.isArray(value) && value.length > 0 && value.length < allStatuses.length) {
+          params.set(key, value.join(','))
+        }
+      } else if (value !== '' && value !== false) {
         params.set(key, String(value))
       }
     }
@@ -155,6 +164,28 @@ function mapStatusTypeToFilter(statusType, subGroup) {
 
 function groupKey(group, index) {
   return `${group.search_version}-${group.group_name}-${group.product}-${index}`
+}
+
+// --- Refresh: re-fetch data with current filters ---
+function handleRefresh() {
+  // TODO: Replace with actual API call when backend is ready.
+  // For now, force re-compute by toggling a reactive trigger.
+  const current = { ...filters.value }
+  filters.value = { ...current }
+}
+
+// --- Navigate to related pages ---
+const NAV_URLS = {
+  guide: '/guide/missing-files',
+  shield: '/config/shield',
+  remap: '/config/remap',
+}
+
+function handleNavigate(target) {
+  const url = NAV_URLS[target]
+  if (url) {
+    window.open(url, '_blank')
+  }
 }
 </script>
 
