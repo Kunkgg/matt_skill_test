@@ -52,7 +52,7 @@
 - 字体：标题 Outfit，正文 Figtree（通过 @fontsource 安装），等宽用于 file_path。
 - 计数用紧凑数字徽标，0 值弱化为灰色以突出非零问题。
 - 所有颜色走 @lovable/styles.css 语义 token，不硬编码。
-- 效果截图参考 @lovable/screenshot_1.png 和 @screenshot_2.png
+- 效果截图参考 @lovable/screenshot_1.png 和 @lovable/screenshot_2.png
 
 ### 技术要点
 

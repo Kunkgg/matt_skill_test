@@ -1,17 +1,17 @@
 <template>
   <div id="app-container">
-    <SummaryDashboard />
+    <MissingScanBoard />
   </div>
 </template>
 
 <script setup>
-import SummaryDashboard from './components/SummaryDashboard.vue'
+import MissingScanBoard from './components/MissingScanBoard.vue'
 </script>
 
 <style>
 #app-container {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 24px 32px;
 }
 </style>
