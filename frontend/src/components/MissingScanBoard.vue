@@ -19,39 +19,59 @@
       @navigate="handleNavigate"
     />
 
-    <!-- Overview Cards -->
-    <OverviewCards :stats="stats" />
-
-    <!-- Group Cards -->
-    <div class="scan-board__groups">
-      <div v-if="groups.length === 0" class="scan-board__empty">
-        <el-empty description="暂无匹配数据" />
-      </div>
-      <GroupCard
-        v-for="(group, index) in groups"
-        :key="groupKey(group, index)"
-        :group="group"
-        @count-click="handleCountClick($event, group)"
-      />
+    <!-- Loading State -->
+    <div v-if="loading" class="scan-board__loading">
+      <el-skeleton :rows="4" animated />
     </div>
+
+    <!-- Error State -->
+    <div v-else-if="error" class="scan-board__error">
+      <el-alert
+        :title="error"
+        type="error"
+        show-icon
+        :closable="false"
+      />
+      <el-button type="primary" style="margin-top: 12px" @click="loadData">重试</el-button>
+    </div>
+
+    <template v-else>
+      <!-- Overview Cards -->
+      <OverviewCards :stats="stats" />
+
+      <!-- Group Cards -->
+      <div class="scan-board__groups">
+        <div v-if="groups.length === 0" class="scan-board__empty">
+          <el-empty description="暂无匹配数据" />
+        </div>
+        <GroupCard
+          v-for="(group, index) in groups"
+          :key="groupKey(group, index)"
+          :group="group"
+          @count-click="handleCountClick($event, group)"
+        />
+      </div>
+    </template>
 
     <!-- File Detail Drawer -->
     <FileDetailDrawer
       v-model:visible="drawerVisible"
       :context="drawerContext"
       :files="drawerFiles"
+      :loading="drawerLoading"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import {
-  getFilterOptions,
-  getFilteredGroups,
-  getOverviewStats,
-  getMissingFiles,
-} from '../data/selectors.js'
+  fetchSummaryData,
+  fetchFilterOptions,
+  fetchMissingFiles,
+  transformSummaryResponse,
+  computeOverviewStats,
+} from '../api/missing-scan.js'
 import FilterToolbar from './FilterToolbar.vue'
 import OverviewCards from './OverviewCards.vue'
 import GroupCard from './GroupCard.vue'
@@ -76,42 +96,98 @@ function parseUrlFilters() {
 
 const filters = ref(parseUrlFilters())
 
-// --- Computed data ---
-const filterOptions = computed(() => getFilterOptions())
+// --- Reactive data (populated by API) ---
+const filterOptions = ref({
+  versions: [],
+  group_names: [],
+  products: [],
+  source_types: [],
+  lans: [],
+  data_types: [],
+  tool_names: [],
+})
 
-const groups = computed(() => getFilteredGroups(filters.value))
+const groups = ref([])
+const stats = ref({ totalTasks: 0, noResultTasks: 0, hasMissingTasks: 0, hasExpiredMissingTasks: 0 })
+const loading = ref(false)
+const error = ref(null)
 
-const stats = computed(() => getOverviewStats(groups.value))
+// --- Load filter options (once on mount) ---
+async function loadFilterOptions() {
+  try {
+    filterOptions.value = await fetchFilterOptions()
+  } catch (e) {
+    console.error('Failed to load filter options:', e)
+  }
+}
 
-// --- URL sync ---
+// --- Load dashboard data (summary groups + stats) ---
+async function loadData() {
+  loading.value = true
+  error.value = null
+  try {
+    const response = await fetchSummaryData(filters.value)
+    const transformedGroups = transformSummaryResponse(response)
+    groups.value = transformedGroups
+    stats.value = computeOverviewStats(transformedGroups)
+  } catch (e) {
+    console.error('Failed to load summary data:', e)
+    error.value = '加载数据失败，请检查网络后重试。'
+    groups.value = []
+    stats.value = { totalTasks: 0, noResultTasks: 0, hasMissingTasks: 0, hasExpiredMissingTasks: 0 }
+  } finally {
+    loading.value = false
+  }
+}
+
+// --- Init on mount ---
+onMounted(async () => {
+  await Promise.all([loadFilterOptions(), loadData()])
+})
+
+// --- Re-fetch when filters change ---
+let filterDebounceTimer = null
 watch(
   filters,
   (newFilters) => {
-    const allStatuses = ['通过', '缺失', '超期', '未扫描']
-    const params = new URLSearchParams()
-    for (const [key, value] of Object.entries(newFilters)) {
-      if (key === 'task_status') {
-        // Only persist if not all selected (all-selected is the default)
-        if (Array.isArray(value) && value.length > 0 && value.length < allStatuses.length) {
-          params.set(key, value.join(','))
-        }
-      } else if (value !== '' && value !== false) {
-        params.set(key, String(value))
-      }
-    }
-    const qs = params.toString()
-    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname
-    window.history.replaceState({}, '', url)
+    // Sync URL params
+    syncUrlParams(newFilters)
+
+    // Debounced re-fetch
+    if (filterDebounceTimer) clearTimeout(filterDebounceTimer)
+    filterDebounceTimer = setTimeout(() => {
+      loadData()
+    }, 300)
   },
   { deep: true }
 )
+
+// --- URL sync ---
+function syncUrlParams(newFilters) {
+  const allStatuses = ['通过', '缺失', '超期', '未扫描']
+  const params = new URLSearchParams()
+  for (const [key, value] of Object.entries(newFilters)) {
+    if (key === 'task_status') {
+      // Only persist if not all selected (all-selected is the default)
+      if (Array.isArray(value) && value.length > 0 && value.length < allStatuses.length) {
+        params.set(key, value.join(','))
+      }
+    } else if (value !== '' && value !== false) {
+      params.set(key, String(value))
+    }
+  }
+  const qs = params.toString()
+  const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname
+  window.history.replaceState({}, '', url)
+}
 
 // --- Drawer ---
 const drawerVisible = ref(false)
 const drawerContext = ref({})
 const drawerFiles = ref([])
+const drawerLoading = ref(false)
 
-function handleCountClick(event, group) {
+async function handleCountClick(event, group) {
   const { summary_id, tool_name, status_type, sub_group } = event
 
   // Build context for drawer header
@@ -126,13 +202,22 @@ function handleCountClick(event, group) {
     report_url: findReportUrl(group, tool_name),
   }
 
-  // Get files filtered by status
-  const statusFilter = mapStatusTypeToFilter(status_type, sub_group)
-  const files = getMissingFiles(summary_id, statusFilter)
-
   drawerContext.value = context
-  drawerFiles.value = files
+  drawerFiles.value = []
+  drawerLoading.value = true
   drawerVisible.value = true
+
+  // Fetch files asynchronously
+  try {
+    const statusFilter = mapStatusTypeToFilter(status_type, sub_group)
+    const files = await fetchMissingFiles(summary_id, statusFilter)
+    drawerFiles.value = files
+  } catch (e) {
+    console.error('Failed to load missing files:', e)
+    drawerFiles.value = []
+  } finally {
+    drawerLoading.value = false
+  }
 }
 
 function findReportUrl(group, toolName) {
@@ -166,12 +251,10 @@ function groupKey(group, index) {
   return `${group.search_version}-${group.group_name}-${group.product}-${index}`
 }
 
-// --- Refresh: re-fetch data with current filters ---
+// --- Refresh: re-fetch data from API ---
 function handleRefresh() {
-  // TODO: Replace with actual API call when backend is ready.
-  // For now, force re-compute by toggling a reactive trigger.
-  const current = { ...filters.value }
-  filters.value = { ...current }
+  loadFilterOptions()
+  loadData()
 }
 
 // --- Navigate to related pages ---
@@ -239,5 +322,16 @@ function handleNavigate(target) {
 
 .scan-board__empty {
   padding: 48px 0;
+}
+
+.scan-board__loading {
+  padding: 32px 0;
+}
+
+.scan-board__error {
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 </style>
