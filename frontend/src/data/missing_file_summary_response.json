@@ -1,0 +1,172 @@
+{
+  "data": [
+    {
+      "search_version": "27A",
+      "c_version": "HERT XXX 2026B",
+      "data_type": "版本级",
+      "source_type": "self_dev",
+      "lan": "clike",
+      "product": "4G",
+      "summarys": [
+        {
+          "summary_id": 12,
+          "tool_name": "codestyle",
+          "passed": 1200,
+          "missed": 101,
+          "failed": 62,
+          "shielded": 200,
+          "remapped": 500,
+          "overdue_missed": 60,
+          "overdue_failed": 41,
+          "scan_time": "2026-06-30 23:12:11",
+          "create_time": "2026-07-01 05:22:16",
+          "report_url": "http://example.com/missing_file/summary/12",
+          "sub_groups": [
+            {
+              "group_name": "subgroup-A",
+              "missed": 51,
+              "failed": 32,
+              "overdue_missed": 30,
+              "overdue_failed": 21
+            },
+            {
+              "group_name": "subgroup-B",
+              "missed": 60,
+              "failed": 30,
+              "overdue_missed": 30,
+              "overdue_failed": 20
+            },
+            {
+              "group_name": "subgroup-C",
+              "missed": 0,
+              "failed": 0,
+              "overdue_missed": 0,
+              "overdue_failed": 0
+            },
+            {
+              "group_name": "subgroup-D",
+              "missed": 0,
+              "failed": 0,
+              "overdue_missed": 0,
+              "overdue_failed": 0
+            }
+          ]
+        },
+        {
+          "summary_id": 13,
+          "tool_name": "secbrella",
+          "passed": 1200,
+          "missed": 101,
+          "failed": 62,
+          "shielded": 200,
+          "remapped": 500,
+          "overdue_missed": 60,
+          "overdue_failed": 41,
+          "scan_time": "2026-06-30 23:12:11",
+          "create_time": "2026-07-01 05:22:16",
+          "report_url": "http://example.com/missing_file/summary/12",
+          "sub_groups": []
+        },
+        {
+          "summary_id": -1,
+          "tool_name": "aps-molint",
+          "passed": -1,
+          "missed": -1,
+          "failed": -1,
+          "shielded": -1,
+          "remapped": -1,
+          "overdue_missed": -1,
+          "overdue_failed": -1,
+          "scan_time": "",
+          "create_time": "",
+          "report_url": "",
+          "sub_groups": []
+        }
+      ]
+    },
+    {
+      "search_version": "27A",
+      "c_version": "HERT XXX 2026B",
+      "data_type": "版本级",
+      "source_type": "self_dev",
+      "lan": "clike",
+      "product": "5G",
+      "summarys": [
+        {
+          "summary_id": 22,
+          "tool_name": "codestyle",
+          "passed": 1200,
+          "missed": 101,
+          "failed": 62,
+          "shielded": 200,
+          "remapped": 500,
+          "overdue_missed": 60,
+          "overdue_failed": 41,
+          "scan_time": "2026-06-30 23:12:11",
+          "create_time": "2026-07-01 05:22:16",
+          "report_url": "http://example.com/missing_file/summary/12",
+          "sub_groups": [
+            {
+              "group_name": "subgroup-A",
+              "missed": 51,
+              "failed": 32,
+              "overdue_missed": 30,
+              "overdue_failed": 21
+            },
+            {
+              "group_name": "subgroup-B",
+              "missed": 60,
+              "failed": 30,
+              "overdue_missed": 30,
+              "overdue_failed": 20
+            },
+            {
+              "group_name": "subgroup-C",
+              "missed": 0,
+              "failed": 0,
+              "overdue_missed": 0,
+              "overdue_failed": 0
+            },
+            {
+              "group_name": "subgroup-D",
+              "missed": 0,
+              "failed": 0,
+              "overdue_missed": 0,
+              "overdue_failed": 0
+            }
+          ]
+        },
+        {
+          "summary_id": 23,
+          "tool_name": "secbrella",
+          "passed": 1200,
+          "missed": 101,
+          "failed": 62,
+          "shielded": 200,
+          "remapped": 500,
+          "overdue_missed": 60,
+          "overdue_failed": 41,
+          "scan_time": "2026-06-30 23:12:11",
+          "create_time": "2026-07-01 05:22:16",
+          "report_url": "http://example.com/missing_file/summary/12",
+          "sub_groups": []
+        },
+        {
+          "summary_id": -1,
+          "tool_name": "aps-molint",
+          "passed": -1,
+          "missed": -1,
+          "failed": -1,
+          "shielded": -1,
+          "remapped": -1,
+          "overdue_missed": -1,
+          "overdue_failed": -1,
+          "scan_time": "",
+          "create_time": "",
+          "report_url": "",
+          "sub_groups": []
+        }
+      ]
+    }
+  ]
+}
