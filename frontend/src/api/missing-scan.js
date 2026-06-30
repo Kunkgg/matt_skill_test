@@ -6,9 +6,6 @@
  * like the backend response defined in `missing_file_summary_response.json`.
  * When the real backend is ready, replace the body of each function with an
  * actual HTTP call (fetch / axios) while keeping the same return type.
- *
- * Each `transform*` function converts the backend response into the frontend
- * types consumed by Vue components (Group, ToolRow, Summary, etc.).
  */
 
 // ─── Mock data import (remove when real backend is ready) ─────────────────────
@@ -22,7 +19,7 @@ import { tasks, summaries, missingFiles } from '../data/sample-data.js'
  * Backend endpoint (future): GET /api/missing-file/summary?search_version=...&product=...
  *
  * @param {import('../data/types.js').Filters} filters
- * @returns {Promise<{ data: RawGroup[] }>}
+ * @returns {Promise<{ data: import('../data/types.js').Group[] }>}
  */
 export async function fetchSummaryData(filters) {
   // TODO: Replace with real API call, e.g.:
@@ -104,108 +101,8 @@ export async function fetchMissingFiles(summaryId, filter) {
   return results
 }
 
-// ─── Transform: backend response → frontend types ─────────────────────────────
-
 /**
- * @typedef {Object} RawSubGroup
- * @property {string} group_name  - sub-group name (backend field)
- * @property {number} missed
- * @property {number} failed
- * @property {number} overdue_missed
- * @property {number} overdue_failed
- */
-
-/**
- * @typedef {Object} RawSummary
- * @property {number} summary_id   - (-1 means unscanned)
- * @property {string} tool_name
- * @property {number} passed       - (-1 means unscanned)
- * @property {number} missed       - (-1 means unscanned)
- * @property {number} failed       - (-1 means unscanned)
- * @property {number} shielded     - (-1 means unscanned)
- * @property {number} remapped     - (-1 means unscanned)
- * @property {number} overdue_missed
- * @property {number} overdue_failed
- * @property {string} scan_time
- * @property {string} create_time
- * @property {string} report_url
- * @property {RawSubGroup[]} sub_groups
- */
-
-/**
- * @typedef {Object} RawGroup
- * @property {string} search_version
- * @property {string} c_version
- * @property {string} data_type
- * @property {string} source_type
- * @property {string} lan
- * @property {string} product
- * @property {RawSummary[]} summarys
- */
-
-/**
- * Transform the raw backend response into the frontend `Group[]` structure.
- *
- * @param {{ data: RawGroup[] }} response
- * @returns {import('../data/types.js').Group[]}
- */
-export function transformSummaryResponse(response) {
-  return (response.data || []).map((rawGroup) => {
-    /** @type {import('../data/types.js').ToolRow[]} */
-    const tools = (rawGroup.summarys || []).map((rawSummary) => {
-      const isUnscanned = rawSummary.summary_id === -1
-
-      /** @type {import('../data/types.js').Summary | null} */
-      const summary = isUnscanned
-        ? null
-        : {
-            summary_id: rawSummary.summary_id,
-            task_id: -1, // not provided by this backend endpoint
-            passed_count: rawSummary.passed,
-            missing_count: rawSummary.missed,
-            failed_count: rawSummary.failed,
-            overdue_missing_count: rawSummary.overdue_missed,
-            overdue_failed_count: rawSummary.overdue_failed,
-            remapped_count: rawSummary.remapped,
-            shielded_count: rawSummary.shielded,
-            report_url: rawSummary.report_url,
-            scan_time: rawSummary.scan_time,
-            create_time: rawSummary.create_time,
-            is_active: 1,
-            sub_groups: (rawSummary.sub_groups || []).map((sg) => ({
-              sub_group_name: sg.group_name,
-              missing_count: sg.missed,
-              failed_count: sg.failed,
-              overdue_missing_count: sg.overdue_missed,
-              overdue_failed_count: sg.overdue_failed,
-              remapped_count: 0,
-              shielded_count: 0,
-            })),
-          }
-
-      return {
-        tool_name: rawSummary.tool_name,
-        summary,
-        sub_groups: summary ? summary.sub_groups : [],
-        missingFiles: [], // files are loaded on-demand via fetchMissingFiles()
-      }
-    })
-
-    return {
-      search_version: rawGroup.search_version,
-      product: rawGroup.product,
-      group_name: '', // not in backend response; may need backend addition
-      lan: rawGroup.lan,
-      source_type: rawGroup.source_type,
-      data_type: rawGroup.data_type,
-      tools,
-    }
-  })
-}
-
-/**
- * Compute overview statistics from transformed groups.
- * (Same logic as the old selectors.getOverviewStats, kept here for cohesion.)
+ * Compute overview statistics from groups using backend field names.
  *
  * @param {import('../data/types.js').Group[]} groups
  * @returns {import('../data/types.js').OverviewStats}
@@ -217,19 +114,19 @@ export function computeOverviewStats(groups) {
   let hasExpiredMissingTasks = 0
 
   for (const group of groups) {
-    for (const tool of group.tools) {
+    for (const summary of group.summarys) {
       totalTasks++
 
-      if (!tool.summary) {
+      if (summary.summary_id === -1) {
         noResultTasks++
         continue
       }
 
-      if (tool.summary.missing_count > 0 || tool.summary.failed_count > 0) {
+      if (summary.missed > 0 || summary.failed > 0) {
         hasMissingTasks++
       }
 
-      if (tool.summary.overdue_missing_count > 0 || tool.summary.overdue_failed_count > 0) {
+      if (summary.overdue_missed > 0 || summary.overdue_failed > 0) {
         hasExpiredMissingTasks++
       }
     }
@@ -245,7 +142,7 @@ export function computeOverviewStats(groups) {
  * from the existing local sample-data.
  *
  * @param {import('../data/types.js').Filters} filters
- * @returns {{ data: RawGroup[] }}
+ * @returns {{ data: import('../data/types.js').Group[] }}
  */
 function buildMockSummaryResponse(filters) {
   // 1. Filter active tasks
@@ -260,7 +157,7 @@ function buildMockSummaryResponse(filters) {
   if (filters.tool_name) filtered = filtered.filter((t) => t.tool_name === filters.tool_name)
 
   // 2. Build summary lookup
-  /** @type {Map<number, import('../data/types.js').Summary>} */
+  /** @type {Map<number, import('../data/types.js').LegacySummary>} */
   const summaryByTask = new Map()
   for (const s of summaries) {
     if (s.is_active !== 1) continue
@@ -290,13 +187,13 @@ function buildMockSummaryResponse(filters) {
   }
 
   // 5. Build raw groups
-  /** @type {RawGroup[]} */
+  /** @type {import('../data/types.js').Group[]} */
   const data = []
 
   for (const [, groupTasks] of groupMap) {
     const first = groupTasks[0]
 
-    /** @type {RawSummary[]} */
+    /** @type {import('../data/types.js').SummaryItem[]} */
     const rawSummarys = []
 
     for (const task of groupTasks) {
@@ -323,7 +220,7 @@ function buildMockSummaryResponse(filters) {
       }
 
       // Build sub_groups in backend format
-      /** @type {RawSubGroup[]} */
+      /** @type {import('../data/types.js').SubGroup[]} */
       const rawSubGroups = (summary.sub_groups || []).map((sg) => ({
         group_name: sg.sub_group_name,
         missed: sg.missing_count,
@@ -357,7 +254,7 @@ function buildMockSummaryResponse(filters) {
     let filteredSummarys = rawSummarys
     if (!isAllSelected) {
       filteredSummarys = rawSummarys.filter((rs) => {
-        const categories = getRawSummaryStatusCategories(rs)
+        const categories = getSummaryStatusCategories(rs)
         return categories.some((cat) => statusSet.includes(cat))
       })
     }
@@ -371,6 +268,7 @@ function buildMockSummaryResponse(filters) {
       source_type: first.source_type,
       lan: first.lan,
       product: first.product,
+      group_name: first.group_name,
       summarys: filteredSummarys,
     })
   }
@@ -379,11 +277,11 @@ function buildMockSummaryResponse(filters) {
 }
 
 /**
- * Determine status categories for a raw summary (for task_status filtering).
- * @param {RawSummary} rs
+ * Determine status categories for a summary item (for task_status filtering).
+ * @param {import('../data/types.js').SummaryItem} rs
  * @returns {string[]}
  */
-function getRawSummaryStatusCategories(rs) {
+function getSummaryStatusCategories(rs) {
   if (rs.summary_id === -1) return ['未扫描']
 
   const cats = []

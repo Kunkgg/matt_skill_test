@@ -37,94 +37,94 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="通过" prop="passed_count" width="80" align="center">
+      <el-table-column label="通过" prop="passed" width="80" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
-            <span :class="countClass(row.passed_count, 'ok')">
-              {{ row.passed_count ?? 0 }}
+            <span :class="countClass(row.passed, 'ok')">
+              {{ row.passed ?? 0 }}
             </span>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="缺失" prop="missing_count" width="80" align="center">
+      <el-table-column label="缺失" prop="missed" width="80" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
             <span
-              :class="countClass(row.missing_count, 'missed')"
-              :style="clickableStyle(row.missing_count)"
-              @click="handleCountClick(row, 'missing', row.missing_count)"
+              :class="countClass(row.missed, 'missed')"
+              :style="clickableStyle(row.missed)"
+              @click="handleCountClick(row, 'missing', row.missed)"
             >
-              {{ row.missing_count ?? 0 }}
+              {{ row.missed ?? 0 }}
             </span>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="失败" prop="failed_count" width="80" align="center">
+      <el-table-column label="失败" prop="failed" width="80" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
             <span
-              :class="countClass(row.failed_count, 'failed')"
-              :style="clickableStyle(row.failed_count)"
-              @click="handleCountClick(row, 'failed', row.failed_count)"
+              :class="countClass(row.failed, 'failed')"
+              :style="clickableStyle(row.failed)"
+              @click="handleCountClick(row, 'failed', row.failed)"
             >
-              {{ row.failed_count ?? 0 }}
+              {{ row.failed ?? 0 }}
             </span>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="过期缺失" prop="overdue_missing_count" width="90" align="center">
+      <el-table-column label="过期缺失" prop="overdue_missed" width="90" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
             <span
-              :class="countClass(row.overdue_missing_count, 'expired')"
-              :style="clickableStyle(row.overdue_missing_count)"
-              @click="handleCountClick(row, 'overdue_missing', row.overdue_missing_count)"
+              :class="countClass(row.overdue_missed, 'expired')"
+              :style="clickableStyle(row.overdue_missed)"
+              @click="handleCountClick(row, 'overdue_missing', row.overdue_missed)"
             >
-              {{ row.overdue_missing_count ?? 0 }}
+              {{ row.overdue_missed ?? 0 }}
             </span>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="过期失败" prop="overdue_failed_count" width="90" align="center">
+      <el-table-column label="过期失败" prop="overdue_failed" width="90" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
             <span
-              :class="countClass(row.overdue_failed_count, 'expired')"
-              :style="clickableStyle(row.overdue_failed_count)"
-              @click="handleCountClick(row, 'overdue_failed', row.overdue_failed_count)"
+              :class="countClass(row.overdue_failed, 'expired')"
+              :style="clickableStyle(row.overdue_failed)"
+              @click="handleCountClick(row, 'overdue_failed', row.overdue_failed)"
             >
-              {{ row.overdue_failed_count ?? 0 }}
+              {{ row.overdue_failed ?? 0 }}
             </span>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="屏蔽" prop="shielded_count" width="80" align="center">
+      <el-table-column label="屏蔽" prop="shielded" width="80" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
-            <span :class="countClass(row.shielded_count, 'neutral')">
-              {{ row.shielded_count ?? 0 }}
+            <span :class="countClass(row.shielded, 'neutral')">
+              {{ row.shielded ?? 0 }}
             </span>
           </template>
         </template>
       </el-table-column>
 
-      <el-table-column label="重映射" prop="remapped_count" width="80" align="center">
+      <el-table-column label="重映射" prop="remapped" width="80" align="center">
         <template #default="{ row }">
           <template v-if="row.isUnscanned"><span class="count-muted">—</span></template>
           <template v-else>
-            <span :class="countClass(row.remapped_count, 'neutral')">
-              {{ row.remapped_count ?? 0 }}
+            <span :class="countClass(row.remapped, 'neutral')">
+              {{ row.remapped ?? 0 }}
             </span>
           </template>
         </template>
@@ -190,48 +190,47 @@ const dimensions = computed(() => [
 ])
 
 const tableData = computed(() => {
-  return (props.group.tools || []).map((tool) => {
-    const s = tool.summary
-    const isUnscanned = !s
+  return (props.group.summarys || []).map((summary) => {
+    const isUnscanned = summary.summary_id === -1
 
     const row = {
-      rowKey: `tool-${tool.tool_name}`,
+      rowKey: `tool-${summary.tool_name}`,
       rowType: 'tool',
-      tool_name: tool.tool_name,
+      tool_name: summary.tool_name,
       isUnscanned,
-      passed_count: s?.passed_count ?? null,
-      missing_count: s?.missing_count ?? null,
-      failed_count: s?.failed_count ?? null,
-      overdue_missing_count: s?.overdue_missing_count ?? null,
-      overdue_failed_count: s?.overdue_failed_count ?? null,
-      remapped_count: s?.remapped_count ?? null,
-      shielded_count: s?.shielded_count ?? null,
-      scan_time: s?.scan_time ?? null,
-      create_time: s?.create_time ?? null,
-      report_url: s?.report_url ?? null,
-      _summary_id: s?.summary_id ?? null,
-      _tool_name: tool.tool_name,
+      passed: isUnscanned ? null : summary.passed,
+      missed: isUnscanned ? null : summary.missed,
+      failed: isUnscanned ? null : summary.failed,
+      overdue_missed: isUnscanned ? null : summary.overdue_missed,
+      overdue_failed: isUnscanned ? null : summary.overdue_failed,
+      remapped: isUnscanned ? null : summary.remapped,
+      shielded: isUnscanned ? null : summary.shielded,
+      scan_time: isUnscanned ? null : summary.scan_time,
+      create_time: isUnscanned ? null : summary.create_time,
+      report_url: isUnscanned ? null : summary.report_url,
+      _summary_id: isUnscanned ? null : summary.summary_id,
+      _tool_name: summary.tool_name,
     }
 
-    if (tool.sub_groups && tool.sub_groups.length > 0 && !isUnscanned) {
-      row.children = tool.sub_groups.map((sg) => ({
-        rowKey: `tool-${tool.tool_name}-sg-${sg.sub_group_name}`,
+    if (summary.sub_groups && summary.sub_groups.length > 0 && !isUnscanned) {
+      row.children = summary.sub_groups.map((sg) => ({
+        rowKey: `tool-${summary.tool_name}-sg-${sg.group_name}`,
         rowType: 'sub_group',
-        tool_name: sg.sub_group_name,
+        tool_name: sg.group_name,
         isUnscanned: false,
-        passed_count: null,
-        missing_count: sg.missing_count ?? 0,
-        failed_count: sg.failed_count ?? 0,
-        overdue_missing_count: sg.overdue_missing_count ?? 0,
-        overdue_failed_count: sg.overdue_failed_count ?? 0,
-        remapped_count: sg.remapped_count ?? 0,
-        shielded_count: sg.shielded_count ?? 0,
+        passed: null,
+        missed: sg.missed ?? 0,
+        failed: sg.failed ?? 0,
+        overdue_missed: sg.overdue_missed ?? 0,
+        overdue_failed: sg.overdue_failed ?? 0,
+        remapped: 0,
+        shielded: 0,
         scan_time: null,
         create_time: null,
         report_url: null,
-        _summary_id: s?.summary_id ?? null,
-        _tool_name: tool.tool_name,
-        _sub_group: sg.sub_group_name,
+        _summary_id: summary.summary_id,
+        _tool_name: summary.tool_name,
+        _sub_group: sg.group_name,
       }))
     }
 

@@ -69,7 +69,6 @@ import {
   fetchSummaryData,
   fetchFilterOptions,
   fetchMissingFiles,
-  transformSummaryResponse,
   computeOverviewStats,
 } from '../api/missing-scan.js'
 import FilterToolbar from './FilterToolbar.vue'
@@ -127,9 +126,8 @@ async function loadData() {
   error.value = null
   try {
     const response = await fetchSummaryData(filters.value)
-    const transformedGroups = transformSummaryResponse(response)
-    groups.value = transformedGroups
-    stats.value = computeOverviewStats(transformedGroups)
+    groups.value = response.data || []
+    stats.value = computeOverviewStats(groups.value)
   } catch (e) {
     console.error('Failed to load summary data:', e)
     error.value = '加载数据失败，请检查网络后重试。'
@@ -221,8 +219,8 @@ async function handleCountClick(event, group) {
 }
 
 function findReportUrl(group, toolName) {
-  const tool = (group.tools || []).find((t) => t.tool_name === toolName)
-  return tool?.summary?.report_url || null
+  const summary = (group.summarys || []).find((s) => s.tool_name === toolName)
+  return summary?.report_url || null
 }
 
 function mapStatusTypeToFilter(statusType, subGroup) {
