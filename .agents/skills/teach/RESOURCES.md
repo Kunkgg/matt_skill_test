@@ -9,8 +9,8 @@
   各平台官方安装方式总表。**已核实**：明确提供 GNU 与 **Musl** 两套 Linux 构建；列出全部可选依赖（ffmpeg/7zip/jq/poppler/fd/rg/fzf/zoxide/resvg/imagemagick/nerd-fonts/剪贴板工具）。用于：任何平台的首装、依赖排错。
 - [Official Docs — Quick Start](https://yazi-rs.github.io/docs/quick-start/)
   官方按键速查 + `y` shell wrapper 源码。**已核实**：含导航/选择/文件操作/复制路径(`c`⇒`c`/`d`/`f`/`n`)/过滤/查找/搜索/排序/多 tab 的权威按键表。用于：所有"核心操作"课程的事实依据、`y` wrapper 的安装。
-- [Official Docs — Configuration](https://yazi-rs.github.io/docs/configuration/)
-  `yazi.toml` / `theme.toml` 全配置项权威说明。用于：跨平台同步、行为微调。（URL 为同站 sibling 页，待首次使用时复核。）
+- [Official Docs — Configuration Overview](https://yazi-rs.github.io/docs/configuration/overview/)
+  四个配置文件（`yazi.toml`/`keymap.toml`/`theme.toml`/`init.lua`）+ 全配置项权威说明。**第 6 课已逐条核实**（v26.5.6，与 page 元数据 docsearch:version 一致）：① 配置目录 Unix `~/.config/yazi/`、Windows `%AppData%\yazi\config\`；② **`prepend_*`/`append_*` 混合机制**——同名选项覆盖默认，`prepend_*`/`append_*` 在默认之上叠加（适用 keymap / fetchers / open / icon / previewer / preloader）；③ **`YAZI_CONFIG_HOME` 环境变量**可整目录迁移配置（例 `YAZI_CONFIG_HOME=~/.config/yazi-alt yazi`）；④ 默认配置见仓库 `shipped` tag。用于：跨平台同步、行为微调、自定义按键的理论依据。
 - [Official Docs — Keymap](https://yazi-rs.github.io/docs/configuration/keymap/)
   `keymap.toml` 权威结构与所有默认动作名。**第 5 课已部分核实**：v25+ 文件列表层改名 `[mgr]`（旧 `[manager]`），按键 `on=[...]` 为数组、`prepend_keymap=[...]` 为数组。用于：自定义快捷键、把 ranger/lf 肌肉记忆映射过来。（完整默认表待复核——第三方源对"建 tab 是 `t` 还是 `t t`"说法不一；本机第 4 课实测为 `t t`，以此为准。）
 - [Official Docs — Plugins](https://yazi-rs.github.io/docs/plugins/)
@@ -18,7 +18,7 @@
 - [Official Docs — Resources](https://yazi-rs.github.io/docs/resources/)
   官方维护的插件/主题索引。**已核实**：tagging 能力靠插件实现。
 - [Plugin: boydaihungst/simple-tag.yazi](https://github.com/boydaihungst/simple-tag.yazi)
-  跨平台文件标签插件，第 5 课主源。**已核实 README**：① 一个标签 = 一个字符，可多标签；② **明确声明支持 Linux/Windows/macOS**（不走 mactag），消除跨平台顾虑；③ **无默认快捷键**——插件提供 add/remove/toggle/filter/clear/edit/toggle-ui/toggle-select 等动作，键位全靠用户在 `keymap.toml` 绑；④ 必需 `init.lua` 写 `require("simple-tag"):setup({})`；⑤ fetcher 配置（`yazi.toml` 的 `[plugin]`）控制徽章显示。用于：mission 中的"文件标签"需求。标签**存储位置 README 未述**，待第 6 课 dotfiles 同步时实测。
+  跨平台文件标签插件，第 5 课主源。**已核实 README**：① 一个标签 = 一个字符，可多标签；② **明确声明支持 Linux/Windows/macOS**（不走 mactag），消除跨平台顾虑；③ **无默认快捷键**——插件提供 add/remove/toggle/filter/clear/edit/toggle-ui/toggle-select 等动作，键位全靠用户在 `keymap.toml` 绑；④ 必需 `init.lua` 写 `require("simple-tag"):setup({})`；⑤ fetcher 配置（`yazi.toml` 的 `[plugin]`）控制徽章显示。**⚠️ README 过时点**：README 主示例的 fetcher 条目**没有 `group` 字段，在 yazi v26+ 启动会报 `missing field group`**；正确写法是给每条加 `group = "simple-tag"`（README 仅在注释行里给了此值）。用于：mission 中的"文件标签"需求。标签**存储位置已查实**（插件源码 `main.lua:549-551`，非 README）：Unix/WSL `~/.config/yazi/tags/`、Windows `%APPDATA%\yazi\config\tags\`；按父目录绝对路径分目录、每目录一个 `tags.json`。**跨机器不可直接同步**——键是绝对路径，WSL/Win 路径不同则标签不互通；dotfiles 只同步配置文件。
 - [GitHub: sxyazi/yazi](https://github.com/sxyazi/yazi)
   上游仓库（36k+ stars）。Releases 提供 GNU/Musl/nightly 二进制；Discussions 是高频问答区。用于：版本/Glibc 问题排错、musl 下载链接。
 - [GitHub: AnirudhG07/awesome-yazi](https://github.com/AnirudhG07/awesome-yazi)
@@ -37,5 +37,5 @@
 
 ## Gaps
 
-- **跨平台配置同步方案**：yazi 配置在 Unix 是 `~/.config/yazi/`、Windows 是 `%APPDATA%\yazi\config\`。如何用一套 dotfiles/symlink 在四类机器同步，官方无专门文档 —— 需结合用户实际（是否用 git 管 dotfiles）单独设计一节课（第 6 课）。
-- **~~标签功能的跨平台可用性~~**（已解决）：`simple-tag.yazi` 的 README 明确声明支持 Linux/Windows/macOS（第 5 课核实）。**剩余未知**：标签数据存在哪个文件、能否随 dotfiles 跨机器带走 —— 第 6 课实测。
+- **~~跨平台配置同步方案~~**（第 6 课已设计，待用户实测）：官方无专门 dotfiles 文档，但 Configuration overview **已核实 `YAZI_CONFIG_HOME` 环境变量**可整目录迁移配置。第 6 课选了更省事的「在默认目录里 `git init`」方案——零 symlink、零环境变量：Unix `~/.config/yazi/`、Windows `%APPDATA%\yazi\config\` 各自 clone 同一仓库，`.gitignore` 排掉 `plugins/`（每机 `ya pkg add` 重装）和 `tags/`（按绝对路径存，跨机器不通用）。`YAZI_CONFIG_HOME` 留作「塞进统一 dotfiles 大仓库」时的备选。
+- **~~标签功能的跨平台可用性~~**（已解决）：`simple-tag.yazi` 的 README 明确声明支持 Linux/Windows/macOS（第 5 课核实）。**~~标签存储位置~~**（已解决，源码 `main.lua:549-551`）：Unix/WSL `~/.config/yazi/tags/`、Win `%APPDATA%\yazi\config\tags\`。**结论**：标签按父目录绝对路径存储 → **不能**随 dotfiles 跨机器带走（路径不同则不互通）；跨平台同步只管配置文件。

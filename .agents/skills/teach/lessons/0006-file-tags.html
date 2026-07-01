@@ -46,10 +46,10 @@ ya pkg add boydaihungst/simple-tag</code></pre>
   <p><strong>② <code>~/.config/yazi/yazi.toml</code></strong> —— 让标签徽章显示在文件列表里：</p>
   <pre><code>[plugin]
 prepend_fetchers = [
-  { id = "simple-tag", url = "*",  run = "simple-tag" },
-  { id = "simple-tag", url = "*/", run = "simple-tag" },
+  { id = "simple-tag", url = "*",  run = "simple-tag", group = "simple-tag" },
+  { id = "simple-tag", url = "*/", run = "simple-tag", group = "simple-tag" },
 ]</code></pre>
-  <p>fetcher 负责渲染标签徽章。用 <code>prepend_fetchers</code>（追加在前）而<strong>不是</strong> <code>fetchers</code>——后者会<strong>覆盖</strong>掉 yazi 自带的 fetcher（比如显示 git 状态那个）。</p>
+  <p>fetcher 负责渲染标签徽章。用 <code>prepend_fetchers</code>（追加在前）而<strong>不是</strong> <code>fetchers</code>——后者会<strong>覆盖</strong>掉 yazi 自带的 fetcher（比如显示 git 状态那个）。每个条目末尾的 <code>group = "simple-tag"</code> 是 <strong>yazi v26+ 的必填项</strong>：它把同组的 fetcher 编成一批一起跑，simple-tag 用自己的组名、不跟内置 fetcher 混。<em>少写它启动就报 <code>missing field group</code></em>——simple-tag README 的主示例漏了这个字段（过时写法，别直抄），是它注释行里才给了 <code>group = "simple-tag"</code>。</p>
 
   <p><strong>③ <code>~/.config/yazi/keymap.toml</code></strong> —— 绑定 4 个动作：</p>
   <pre><code>[mgr]
